@@ -9,17 +9,112 @@ output:
 ## Loading and preprocessing the data
 
 
+Show any code that is needed to
+
+Load the data (i.e. read.csv())
+```{r loaddata, echo=TRUE}
+library(data.table)
+t <- unz(description='activity.zip', filename='activity.csv')
+data <- read.csv(file=t)
+unlink(t)
+```
+
+Process/transform the data (if necessary) into a format suitable for your analysis
+```{r preprocessing, echo=TRUE}
+# convert to date or not?
+# data$date <- strptime(data$date, "%Y-%m-%d")
+# d1 <- data[!is.na(data$steps),]
+d1 <- data.table(data[!is.na(data$steps),])
+```
+
 
 ## What is mean total number of steps taken per day?
 
+
+Make a histogram of the total number of steps taken each day
+```{r histtotal, echo=TRUE}
+dsum <- d1[,list(sum=sum(steps)),by=date]
+hist(dsum$sum,
+     xlab='Number of steps',
+     main='Steps taken each day')
+```
+
+Calculate and report the mean and median total number of steps taken per day
+```{r meanmed, echo=TRUE}
+d1[,list(mean=mean(steps),median=median(steps)),by=date]
+```
 
 
 ## What is the average daily activity pattern?
 
 
+Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+```{r avedaily, echo=TRUE}
+plot(unique(d1$interval),
+     d1[,list(mean=mean(steps)),by=interval]$mean,
+     type="l",
+     xlab="time of day",
+     ylab="average steps",
+     main="average daily activity pattern")
+```
+
+Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r maxsteps, echo=TRUE}
+d1[which.max(d1[,list(mean=mean(steps)),by=interval]$mean)]
+```
+
 
 ## Imputing missing values
 
 
+Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
+
+Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+
+```{r missings, echo=TRUE}
+table(is.na(data))[2]
+```
+
+Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+```{r fulfiled, echo=TRUE}
+sub <- as.data.frame(d1[,list(mean=mean(steps)),by=interval])
+sub <- merge(sub,data[is.na(data$steps),])
+sub$steps <- sub$mean
+sub <- sub[c("steps","date","interval")]
+cdata <- rbind(d1,sub)
+```
+
+Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```{r correctionanalysis, echo=TRUE}
+cdatasum <- cdata[,list(sum=sum(steps)),by=date]
+hist(cdatasum$sum,
+     xlab='Number of steps',
+     main='Steps taken each day, corrected')
+
+cdata[,list(mean=mean(steps),median=median(steps)),by=date]
+```
+
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
+For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+
+Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was creating using simulated data:
+
+Your plot will look different from the one above because you will be using the activity monitor data. Note that the above plot was made using the lattice system but you can make the same version of the plot using any plotting system you choose.
+
+```{r activdif, echo=TRUE}
+plot(unique(cdata$interval),
+     cdata[,list(mean=mean(steps)),by=interval]$mean,
+     type="l",
+     xlab="time of day",
+     ylab="average steps",
+     main="average daily activity pattern, corrected")
+```
