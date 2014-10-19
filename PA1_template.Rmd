@@ -62,11 +62,14 @@ TASK: *Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axi
 ```{r daily average plot, echo=TRUE, fig.width=12}
 plot(unique(tidydata$interval),
      tidydata.meansteps,
+     col="white",
      type="l",
      axes=FALSE,
      xlab="5 min intervals",
      ylab="Average steps, #",
      main="Average daily activity pattern")
+grid()
+lines(unique(tidydata$interval), tidydata.meansteps)
 axis(side=1, 100*0:24, labels=FALSE, lwd=0.2)
 axis(side=1, 500*0:5)
 axis(side=2, 10*1:21, labels=FALSE, lwd=0.2)
@@ -159,21 +162,27 @@ with(wdata, {
     par(mar=c(0,5,1.5,0))
     plot(wdata[cdata.f=="weekday"]$interval,
          wdata[cdata.f=="weekday"]$mean,
+         col="white",
          main="Weekday/end activity chart",
          axes=FALSE,
          type="l",
          ylab="Weekday steps, #")
     grid()
+    lines(wdata[cdata.f=="weekday"]$interval,
+          wdata[cdata.f=="weekday"]$mean)
     axis(side=2, 10*1:24, labels=FALSE, lwd=0.2)
     axis(side=2, 50*0:5)
     par(mar=c(4.5,5,0,0))
     plot(wdata[cdata.f=="weekend"]$interval,
          wdata[cdata.f=="weekend"]$mean,
+         col="white",
          axes=FALSE,
          type="l",
          xlab="5 min intervals",
          ylab="Weekend steps, #")
     grid()
+    lines(wdata[cdata.f=="weekend"]$interval,
+         wdata[cdata.f=="weekend"]$mean)
     axis(side=2, 10*1:21, labels=FALSE, lwd=0.2)
     axis(side=2, 50*0:5)
     axis(side=1, 100*0:24, labels=FALSE, lwd=0.2)
