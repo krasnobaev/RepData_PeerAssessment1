@@ -82,7 +82,7 @@ plot(unique(tidydata$interval),
      tidydata.meansteps,
      type="l",
      axes=FALSE,
-     xlab="5 min interval",
+     xlab="5 min intervals",
      ylab="Average steps, #",
      main="Average daily activity pattern")
 axis(side=1, 100*0:24, labels=FALSE, lwd=0.2)
@@ -215,14 +215,32 @@ TASK: *Make a panel plot containing a time series plot (i.e. type = "l") of the 
 ```r
 library(lattice)
 wdata <- cdata[,list(mean=mean(steps)),by=list(cdata.f,interval)]
-xyplot(wdata$mean ~ wdata$interval | wdata$cdata.f,
-       layout = c(1, 2),
-       breaks=20,
-       axes=FALSE,
-       type="l",
-       xlab="5 min interval",
-       ylab="Average steps, #",
-       main="Weekday activity difference")
+par(mfrow=c(2,1))
+with(wdata, {
+    par(mar=c(0,5,1.5,0))
+    plot(wdata[cdata.f=="weekday"]$interval,
+         wdata[cdata.f=="weekday"]$mean,
+         main="Weekday/end activity chart",
+         axes=FALSE,
+         type="l",
+         ylab="Weekday steps, #")
+    grid()
+    axis(side=2, 10*1:24, labels=FALSE, lwd=0.2)
+    axis(side=2, 50*0:5)
+    par(mar=c(4.5,5,0,0))
+    plot(wdata[cdata.f=="weekend"]$interval,
+         wdata[cdata.f=="weekend"]$mean,
+         axes=FALSE,
+         type="l",
+         xlab="5 min intervals",
+         ylab="Weekend steps, #")
+    grid()
+    axis(side=2, 10*1:21, labels=FALSE, lwd=0.2)
+    axis(side=2, 50*0:5)
+    axis(side=1, 100*0:24, labels=FALSE, lwd=0.2)
+    axis(side=1, 500*0:5)
+},
+)
 ```
 
 ![plot of chunk weekday activity diff](figure/weekday activity diff-1.png) 
